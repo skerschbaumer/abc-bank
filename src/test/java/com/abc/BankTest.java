@@ -1,11 +1,14 @@
-package com.abc;
-
 import org.junit.Test;
+
+import com.abc.Bank;
+import com.abc.Customer;
+import com.abc.Account;
 
 import static org.junit.Assert.assertEquals;
 
 public class BankTest {
-    private static final double DOUBLE_DELTA = 1e-15;
+   
+	private static final double DOUBLE_DELTA = 1e-15;
 
     @Test
     public void customerSummary() {
@@ -13,7 +16,6 @@ public class BankTest {
         Customer john = new Customer("John");
         john.openAccount(new Account(Account.CHECKING));
         bank.addCustomer(john);
-
         assertEquals("Customer Summary\n - John (1 account)", bank.customerSummary());
     }
 
@@ -25,8 +27,8 @@ public class BankTest {
         bank.addCustomer(bill);
 
         checkingAccount.deposit(100.0);
-
-        assertEquals(0.1, bank.totalInterestPaid(), DOUBLE_DELTA);
+        //deposits made today will not get interest accrued until the following day
+        assertEquals(0.0, bank.totalInterestPaid(), DOUBLE_DELTA);
     }
 
     @Test
@@ -37,7 +39,7 @@ public class BankTest {
 
         checkingAccount.deposit(1500.0);
 
-        assertEquals(2.0, bank.totalInterestPaid(), DOUBLE_DELTA);
+        assertEquals(0.0, bank.totalInterestPaid(), DOUBLE_DELTA);
     }
 
     @Test
@@ -48,7 +50,7 @@ public class BankTest {
 
         checkingAccount.deposit(3000.0);
 
-        assertEquals(170.0, bank.totalInterestPaid(), DOUBLE_DELTA);
+        assertEquals(0.0, bank.totalInterestPaid(), DOUBLE_DELTA);
     }
 
 }

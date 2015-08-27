@@ -29,43 +29,47 @@ public class Account {
 	
 	public static final int INTEREST_DAYS = 10;	
 	
-    private final int accountType;
+	private final int accountType;
     
     
-    public List<Transaction> transactions;
+	private List<Transaction> transactions;
 
-    public Account(int accountType) {
-        this.accountType = accountType;
-        this.transactions = new ArrayList<Transaction>();
-    }
+	public Account(int accountType) {
+		this.accountType = accountType;
+		this.transactions = new ArrayList<Transaction>();
+	}
 
+    
+	public List<Transaction> getTransactions() {
+		return this.transactions;
+	}
    
-    public void transferTo(	Account targetAccount, 
-    						double amount) throws IllegalArgumentException {
+	public void transferTo(	Account targetAccount, 
+							double amount) throws IllegalArgumentException {
     	
-    	if (targetAccount!=null) {
-    		withdraw(amount);
-    		targetAccount.deposit(amount);
-    	}
+		if (targetAccount!=null) {
+			withdraw(amount);
+			targetAccount.deposit(amount);
+		}
     	
-    };
+	}
     
   
     public void deposit(double amount) {
-        if (amount <= 0) {
-            throw new IllegalArgumentException("amount must be greater than zero");
-        } else {
-            transactions.add(new Transaction(amount));
-        }
+    	if (amount <= 0) {
+    		throw new IllegalArgumentException("amount must be greater than zero");
+    	} else {
+    		transactions.add(new Transaction(amount));
+    	}
     }
 
     
     public void withdraw(double amount) {
-	    if (amount <= 0) {
-	        throw new IllegalArgumentException("amount must be greater than zero");
-	    } else {
-	        transactions.add(new Transaction(-amount));
-	    }
+    	if (amount <= 0) {
+    		throw new IllegalArgumentException("amount must be greater than zero");
+    	} else {
+    		transactions.add(new Transaction(-amount));
+    	}
     }
     
     private boolean checkForWithdrawals(Date date, int days) {
@@ -76,14 +80,11 @@ public class Account {
     	// Iterate in reverse.
     	while(li.hasPrevious()) {
     		Transaction transaction = (Transaction)li.previous();
-    		if (transaction.transactionDate.after(pastDate)) {
-    				if (transaction.amount<0) {
-    					return true;
-    				}
-    		} else {
-    			return false;
+    		if (transaction.getTransactionDate().after(pastDate)) {
+    			if (transaction.amount<0) {
+    				return true;
+    			}
     		}
-    		return false;
     	}
     
     	return false;
@@ -101,39 +102,38 @@ public class Account {
     		
     		if (amount>0) {
     			//this is our start date on positive balance
-    			startDate = DateProvider.roundDate(transaction.transactionDate);
+    			startDate = DateProvider.roundDate(transaction.getTransactionDate());
     			return startDate;
     		}
-    		
     	}
     	return startDate;
     }
     
     public double getDailyRate(double rate) {
     
-    		return rate/DateProvider.MONTHS/DateProvider.WEEKS/DateProvider.DAYS;
+    	return rate/DateProvider.MONTHS/DateProvider.WEEKS/DateProvider.DAYS;
     }
     
     
     private double getInterest(Date date, double amount) {
     	
     		switch(accountType) {
-		    	case SAVINGS:
-			        if (amount <= 1000)
-			            return amount * getDailyRate(SAVINGS_RATE);
-		        else
-		            return 1 + (amount-1000) * getDailyRate(SAVINGS_RATE_PREMIUM);
+    			case SAVINGS:
+    				if (amount <= 1000)
+    					return amount * getDailyRate(SAVINGS_RATE);
+    				else
+    					return 1 + (amount-1000) * getDailyRate(SAVINGS_RATE_PREMIUM);
 			    //    case SUPER_SAVINGS:
 		//        if (amount <= 4000)
 		//            return 20;
-		    	case MAXI_SAVINGS:
-		        if (checkForWithdrawals(date, INTEREST_DAYS))
-		            return amount * getDailyRate(MAXI_SAVINGS_RATE_NON_PREMIUM);
-				else
-					return amount * getDailyRate(MAXI_SAVINGS_RATE_PREMIUM);
-		    default:
-		        return amount * getDailyRate(CHECKING_RATE);
-    	}
+    			case MAXI_SAVINGS:
+    				if (checkForWithdrawals(date, INTEREST_DAYS))
+    					return amount * getDailyRate(MAXI_SAVINGS_RATE_NON_PREMIUM);
+    				else
+    					return amount * getDailyRate(MAXI_SAVINGS_RATE_PREMIUM);
+    			default:
+    				return amount * getDailyRate(CHECKING_RATE);
+    		}
     }
     	
  
@@ -151,7 +151,7 @@ public class Account {
     	Date currentDate = firstPositiveBalanceDate;
    	   	
     	for (Transaction transaction: transactions) {
-    		if (DateUtils.isSameDay(transaction.transactionDate, currentDate)) {
+    		if (DateUtils.isSameDay(transaction.getTransactionDate(), currentDate)) {
     			total += transaction.amount;
     		}
     		else {
@@ -161,8 +161,8 @@ public class Account {
     			interestTally += (total-beforeInterest);
     			Date nextDate = DateProvider.getDateFuture(currentDate, 1);
     			
-    			if (DateUtils.isSameDay(nextDate, transaction.transactionDate)) {
-    				currentDate = transaction.transactionDate;
+    			if (DateUtils.isSameDay(nextDate, transaction.getTransactionDate())) {
+    				currentDate = transaction.getTransactionDate();
     			}
     			currentDate = nextDate;
     		}
